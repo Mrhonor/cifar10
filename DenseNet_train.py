@@ -5,7 +5,7 @@ import os
 BATCH_SIZE = 10
 IMAGE_SIZE = 32
 REGULARAZTION_RATE   = 0.0001
-LEARN_RATE = 0.1
+LEARN_RATE = 0.01
 TRAIN_STEP = 30000
 MODEL_SAVE_PATH = "model/"
 MODEL_NAME = "model"
@@ -29,9 +29,10 @@ def train(dataset):
     regularizer = tf.contrib.layers.l2_regularizer(REGULARAZTION_RATE)
     y = DenseNet_inference.inference(x, True, regularizer)
 
-    cross_entropy = tf.nn.sparse_softmax_cross_entropy_with_logits(logits=y, labels=tf.argmax(y_labels, 1))
+    cross_entropy = tf.nn.softmax_cross_entropy_with_logits(logits=y, labels=y_labels)
     loss = tf.reduce_mean(cross_entropy)
     train_step = tf.train.AdamOptimizer(LEARN_RATE).minimize(loss)
+
     saver = tf.train.Saver()
 
     with tf.Session() as sess:
@@ -40,10 +41,11 @@ def train(dataset):
         for i in range(TRAIN_STEP):
             xs, ys = list(dataset.get_next_batch(BATCH_SIZE, i))
             xs = xs.transpose(0,2,3,1)
-            _, loss_value = sess.run([train_step, loss], feed_dict={x:xs, y_labels:ys})
+            step, loss_value = sess.run([train_step, loss], feed_dict={x:xs, y_labels:ys})
 
             if i % 10 == 0:
-                print("%d step, loss : %g\n"%(i, loss_value))
+                print("%d step, loss : %g"%(i, loss_value))
+                print(step)
                 saver.save(sess, os.path.join(MODEL_SAVE_PATH, MODEL_NAME+str(i)+".ckpt"))
 
 def main(argv=None):

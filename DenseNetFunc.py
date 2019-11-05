@@ -36,6 +36,7 @@ def onehot(y, num_classes=None):
     return categorical
 
 
+
 class cifar10:
     def __init__(self):
         batch1 = unpickle("../cifar-10-batches-py/data_batch_1")
@@ -57,11 +58,6 @@ class cifar10:
         self.data_batch4 = batch4[b'data'] 
         self.data_batch4 = self.data_batch4.reshape((10000,3,32,32))
         self.labels_batch4 = batch4.get(b'labels')
-
-        batch5 = unpickle("../cifar-10-batches-py/data_batch_5")
-        self.data_batch5 = batch5[b'data'] 
-        self.data_batch5 = self.data_batch5.reshape((10000,3,32,32))
-        self.labels_batch5 = batch5.get(b'labels')
 
 
     def get_next_batch(self, BATCH_SIZE, i):
