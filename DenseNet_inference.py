@@ -120,7 +120,7 @@ def inference(input_tensor, train, regularizer):
       with tf.variable_scope('layer4-avg_pool'):
             concat = tf.concat([pool1, conv2, conv3, conv4], 3)
             
-            pool2 = tf.nn.avg_pool(concat, ksize=[1,8,8,1], strides=[1,8,8,1], padding='SAME')
+            pool2 = tf.nn.avg_pool(concat, ksize=[1,4,4,1], strides=[1,4,4,1], padding='VALID')
 
       pool_shape = pool2.get_shape().as_list()
       nodes = pool_shape[1] * pool_shape[2] * pool_shape[3]
@@ -136,6 +136,8 @@ def inference(input_tensor, train, regularizer):
             softmax_biases = tf.get_variable("biases", [NUM_LABELS], initializer=tf.constant_initializer(0.0))
 
             softmax = tf.nn.bias_add(tf.matmul(reshaped, softmax_weights), softmax_biases)
+
+            softmax = batch_norm(softmax)
 
             output = tf.nn.softmax(softmax)
             

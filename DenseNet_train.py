@@ -5,7 +5,7 @@ import os
 BATCH_SIZE = 10
 IMAGE_SIZE = 32
 REGULARAZTION_RATE   = 0.0001
-LEARN_RATE = 0.01
+LEARN_RATE = 0.001
 TRAIN_STEP = 30000
 MODEL_SAVE_PATH = "model/"
 MODEL_NAME = "model"
@@ -43,9 +43,10 @@ def train(dataset):
             xs = xs.transpose(0,2,3,1)
             step, loss_value = sess.run([train_step, loss], feed_dict={x:xs, y_labels:ys})
 
-            if i % 10 == 0:
+            if i % 100 == 0:
                 print("%d step, loss : %g"%(i, loss_value))
-                print(step)
+                #print(ys)
+                print(sess.run(y, feed_dict={x:xs}))
                 saver.save(sess, os.path.join(MODEL_SAVE_PATH, MODEL_NAME+str(i)+".ckpt"))
 
 def main(argv=None):
