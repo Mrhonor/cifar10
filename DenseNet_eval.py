@@ -3,20 +3,19 @@ import DenseNet_inference
 import DenseNet_train
 import DenseNetFunc
 
-BATCH_SIZE = 10
+BATCH_SIZE = 9999
 
 def evaluate(dataset):
     with tf.Graph().as_default() as g:
         x  = tf.placeholder(tf.float32, 
             [BATCH_SIZE, 
-            DenseNet_inference.IMAGE_SIZE,
-            DenseNet_inference.IMAGE_SIZE,
+            DenseNet_train.IMAGE_SIZE,
+            DenseNet_train.IMAGE_SIZE,
             DenseNet_inference.NUM_CHANNELS],
 
             name="x-input")
-        y_labels = tf.placeholder(tf.float32, [None, DenseNet_inference.OUTPUT_NODE], name='y-input')
+        y_labels = tf.placeholder(tf.float32, [None, DenseNet_inference.NUM_LABELS], name='y-input')
 
-        #validate_feed = {x:mnist.validation.images, y_:mnist.validation.labels}
 
         y = DenseNet_inference.inference(x, None, None)
 
@@ -28,16 +27,19 @@ def evaluate(dataset):
         with tf.Session() as sess:
             ckpt = tf.train.get_checkpoint_state(DenseNet_train.MODEL_SAVE_PATH)
             if ckpt and ckpt.model_checkpoint_path:
-                accuracy_score = sess.run(accuracy, feed_dict=validate_feed)
-                print("%s step, accuracy = %g" %(global_step, accuracy_score))
+                saver.restore(sess, ckpt.model_checkpoint_path)
+                xs, ys = list(dataset.get_val_batch(0, BATCH_SIZE))
+                xs = xs.transpose(0,2,3,1)
+                accuracy_score = sess.run(accuracy, feed_dict={x:xs, y_labels:ys})
+                print("accuracy = %g" %(accuracy_score))
 
             else:
                 print('No checkpoint file found')
                 return
 
 def main(argv=None):
-    mnist = input_data.read_data_sets("MNIST_DATA/", one_hot=True)
-    evaluate(mnist)
+    cifar = DenseNetFunc.cifar10()
+    evaluate(cifar)
 
 
 if __name__ == '__main__':

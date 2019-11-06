@@ -87,3 +87,9 @@ class cifar10:
             return x, y    
     
     def get_val_batch(self, num1, num2):
+        if num1 >= 10000 or num2 >= 10000 or num1 > num2:
+            return None
+        
+        x = self.data_batch5[num1:num2]
+        y = onehot(self.labels_batch5[num1:num2], 10)
+        return x, y

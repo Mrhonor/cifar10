@@ -2,7 +2,7 @@ import tensorflow as tf
 import DenseNet_inference
 import os
 
-BATCH_SIZE = 10
+BATCH_SIZE = 50
 IMAGE_SIZE = 32
 REGULARAZTION_RATE   = 0.0001
 LEARN_RATE = 0.001
@@ -32,6 +32,10 @@ def train(dataset):
     cross_entropy = tf.nn.softmax_cross_entropy_with_logits(logits=y, labels=y_labels)
     loss = tf.reduce_mean(cross_entropy)
     train_step = tf.train.AdamOptimizer(LEARN_RATE).minimize(loss)
+    
+    correct_prediction = tf.equal(tf.argmax(y, 1), tf.argmax(y_labels, 1))
+    accuracy = tf.reduce_mean(tf.cast(correct_prediction, tf.float32))
+
 
     saver = tf.train.Saver()
 
@@ -41,12 +45,12 @@ def train(dataset):
         for i in range(TRAIN_STEP):
             xs, ys = list(dataset.get_next_batch(BATCH_SIZE, i))
             xs = xs.transpose(0,2,3,1)
-            step, loss_value = sess.run([train_step, loss], feed_dict={x:xs, y_labels:ys})
+            acc, step, loss_value = sess.run([accuracy, train_step, loss], feed_dict={x:xs, y_labels:ys})
 
-            if i % 100 == 0:
-                print("%d step, loss : %g"%(i, loss_value))
-                #print(ys)
-                print(sess.run(y, feed_dict={x:xs}))
+            if i % 10 == 0:
+                print("%d step, loss : %g, accuracy : %f"%(i, loss_value, acc))
+                # print(ys)
+                # print(sess.run(y, feed_dict={x:xs}))
                 saver.save(sess, os.path.join(MODEL_SAVE_PATH, MODEL_NAME+str(i)+".ckpt"))
 
 def main(argv=None):
