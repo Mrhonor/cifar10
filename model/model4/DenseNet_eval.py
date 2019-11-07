@@ -3,7 +3,7 @@ import DenseNet_inference
 import DenseNet_train
 import DenseNetFunc
 
-BATCH_SIZE = 500
+BATCH_SIZE = 1000
 
 def evaluate(dataset):
     with tf.Graph().as_default() as g:

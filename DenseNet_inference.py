@@ -22,15 +22,15 @@ CONV1_DEEP = 32
 
 CONV2_DEEP_BOTTLENECK = CONV1_DEEP / 2
 CONV2_SIZE = 3
-CONV2_DEEP = 24
+CONV2_DEEP = 32
 
 CONV3_DEEP_BOTTLENECK = (CONV1_DEEP + CONV2_DEEP) / 2
 CONV3_SIZE = 3
-CONV3_DEEP = 16
+CONV3_DEEP = 64
 
 CONV4_DEEP_BOTTLENECK = (CONV1_DEEP + CONV2_DEEP + CONV3_DEEP) / 2
 CONV4_SIZE = 3
-CONV4_DEEP = 12
+CONV4_DEEP = 128
 
 
 def inference(input_tensor, train, regularizer):
@@ -43,11 +43,11 @@ def inference(input_tensor, train, regularizer):
                   tf.nn.conv2d(input_tensor, conv1_weights, strides = [1,2,2,1], padding='SAME'), 
                   conv1_biases
             )
-            pool1 = tf.nn.max_pool(conv1, ksize=[1,3,3,1], strides=[1,2,2,1], padding='SAME')
+            # conv1 = tf.nn.max_pool(conv1, ksize=[1,3,3,1], strides=[1,2,2,1], padding='SAME')
 
       # bn - relu - 1x1 conv - bn - relu - 3x3 conv
       with tf.variable_scope('layer2-conv2'):
-            conv2_bn1 = batch_norm(pool1)
+            conv2_bn1 = batch_norm(conv1)
             conv2_relu1 = tf.nn.relu(conv2_bn1)
 
             conv2_weights1 = tf.get_variable("weights1", [1, 1, CONV1_DEEP, CONV2_DEEP_BOTTLENECK], 
@@ -70,7 +70,7 @@ def inference(input_tensor, train, regularizer):
             )
 
       with tf.variable_scope('layer3-conv3'):
-            conv3_concat = tf.concat([pool1, conv2], 3)
+            conv3_concat = tf.concat([conv1, conv2], 3)
             conv3_bn1 = batch_norm(conv3_concat)
             conv3_relu1 = tf.nn.relu(conv3_bn1)
 
@@ -94,7 +94,7 @@ def inference(input_tensor, train, regularizer):
             )
     
       with tf.variable_scope('layer4-conv4'):
-            conv4_concat = tf.concat([pool1, conv2, conv3], 3)
+            conv4_concat = tf.concat([conv1, conv2, conv3], 3)
             conv4_bn1 = batch_norm(conv4_concat)
             conv4_relu1 = tf.nn.relu(conv4_bn1)
 
@@ -118,7 +118,7 @@ def inference(input_tensor, train, regularizer):
             )
 
       with tf.variable_scope('layer4-avg_pool'):
-            concat = tf.concat([pool1, conv2, conv3, conv4], 3)
+            concat = tf.concat([conv1, conv2, conv3, conv4], 3)
             
             pool2 = tf.nn.avg_pool(concat, ksize=[1,4,4,1], strides=[1,4,4,1], padding='VALID')
 
@@ -139,6 +139,6 @@ def inference(input_tensor, train, regularizer):
 
             softmax = batch_norm(softmax)
 
-            #output = tf.nn.softmax(softmax)
+            output = tf.nn.softmax(softmax)
             
-      return softmax
+      return output
