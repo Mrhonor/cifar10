@@ -39,27 +39,27 @@ def onehot(y, num_classes=None):
 
 class cifar10:
     def __init__(self):
-        batch1 = unpickle("../cifar-10-batches-py/data_batch_1")
+        batch1 = unpickle("../../../cifar-10-batches-py/data_batch_1")
         self.data_batch1 = batch1[b'data'] 
         self.data_batch1 = self.data_batch1.reshape((10000,3,32,32))
         self.labels_batch1 = batch1.get(b'labels')
 
-        batch2 = unpickle("../cifar-10-batches-py/data_batch_2")
+        batch2 = unpickle("../../../cifar-10-batches-py/data_batch_2")
         self.data_batch2 = batch2[b'data'] 
         self.data_batch2 = self.data_batch2.reshape((10000,3,32,32))
         self.labels_batch2 = batch2.get(b'labels')
 
-        batch3 = unpickle("../cifar-10-batches-py/data_batch_3")
+        batch3 = unpickle("../../../cifar-10-batches-py/data_batch_3")
         self.data_batch3 = batch3[b'data'] 
         self.data_batch3 = self.data_batch3.reshape((10000,3,32,32))
         self.labels_batch3 = batch3.get(b'labels')
 
-        batch4 = unpickle("../cifar-10-batches-py/data_batch_4")
+        batch4 = unpickle("../../../cifar-10-batches-py/data_batch_4")
         self.data_batch4 = batch4[b'data'] 
         self.data_batch4 = self.data_batch4.reshape((10000,3,32,32))
         self.labels_batch4 = batch4.get(b'labels')
 
-        batch5 = unpickle("../cifar-10-batches-py/data_batch_5")
+        batch5 = unpickle("../../../cifar-10-batches-py/data_batch_5")
         self.data_batch5 = batch5[b'data'] 
         self.data_batch5 = self.data_batch5.reshape((10000,3,32,32))
         self.labels_batch5 = batch5.get(b'labels')

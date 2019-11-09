@@ -53,7 +53,7 @@ def train(dataset):
                 # print(sess.run(y, feed_dict={x:xs}))
                 saver.save(sess, os.path.join(MODEL_SAVE_PATH, MODEL_NAME+str(i)+".ckpt"))
 
-        xs, ys = list(dataset.get_next_batch(1000, 0))
+        xs, ys = list(dataset.get_next_batch(BATCH_SIZE, 0))
         xs = xs.transpose(0,2,3,1)
         acc, step, loss_value = sess.run([accuracy, train_step, loss], feed_dict={x:xs, y_labels:ys})
         print("finish train, loss: %g, accracy: %f"%(loss_value, acc))

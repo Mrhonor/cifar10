@@ -3,7 +3,9 @@ import DenseNet_inference
 import DenseNet_train
 import DenseNetFunc
 
-BATCH_SIZE = 1000
+BATCH_SIZE = 50
+MODEL_SAVE_PATH = DenseNet_train.MODEL_SAVE_PATH
+GRAPH_SAVE_PATH ="graph/"
 
 def evaluate(dataset):
     with tf.Graph().as_default() as g:
@@ -25,17 +27,20 @@ def evaluate(dataset):
         saver = tf.train.Saver()
 
         with tf.Session() as sess:
-            ckpt = tf.train.get_checkpoint_state(DenseNet_train.MODEL_SAVE_PATH)
-            if ckpt and ckpt.model_checkpoint_path:
-                saver.restore(sess, ckpt.model_checkpoint_path)
-                xs, ys = list(dataset.get_val_batch(0, BATCH_SIZE))
+            saver.restore(sess, MODEL_SAVE_PATH + "model29900.ckpt")
+            summary_write = tf.summary.FileWriter(GRAPH_SAVE_PATH, tf.get_default_graph())
+            i = 0
+            acc = 0
+            while i*BATCH_SIZE < 10000 - BATCH_SIZE:
+                # xs, ys = list(dataset.get_val_batch(i*BATCH_SIZE, i*BATCH_SIZE + BATCH_SIZE))
+                xs, ys = list(dataset.get_next_batch(BATCH_SIZE, i))
                 xs = xs.transpose(0,2,3,1)
                 accuracy_score = sess.run(accuracy, feed_dict={x:xs, y_labels:ys})
-                print("accuracy = %g" %(accuracy_score))
+                i = i + 1
+                acc = acc + accuracy_score
+            acc = acc / i
+            print("acc: %f"%(acc))
 
-            else:
-                print('No checkpoint file found')
-                return
 
 def main(argv=None):
     cifar = DenseNetFunc.cifar10()

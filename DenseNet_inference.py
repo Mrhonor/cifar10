@@ -15,7 +15,7 @@ label:
       9 truck
 '''
 
-CONV1_SIZE = 5
+CONV1_SIZE = 3
 NUM_CHANNELS = 3
 NUM_LABELS = 10
 CONV1_DEEP = 32
@@ -40,7 +40,7 @@ def inference(input_tensor, train, regularizer):
                   initializer=tf.truncated_normal_initializer(stddev=0.1))
             conv1_biases = tf.get_variable("biases", [CONV1_DEEP], initializer=tf.constant_initializer(0.0))
             conv1 = tf.nn.bias_add(
-                  tf.nn.conv2d(input_tensor, conv1_weights, strides = [1,2,2,1], padding='SAME'), 
+                  tf.nn.conv2d(input_tensor, conv1_weights, strides = [1,1,1,1], padding='SAME'), 
                   conv1_biases
             )
             # conv1 = tf.nn.max_pool(conv1, ksize=[1,3,3,1], strides=[1,2,2,1], padding='SAME')
@@ -68,6 +68,8 @@ def inference(input_tensor, train, regularizer):
                   tf.nn.conv2d(conv2_relu2, conv2_weights2, strides=[1,1,1,1], padding='SAME'),
                   conv2_biases2
             )
+            if train != None:
+                  conv2 = tf.nn.dropout(conv2, 0.5)
 
       with tf.variable_scope('layer3-conv3'):
             conv3_concat = tf.concat([conv1, conv2], 3)
@@ -92,6 +94,8 @@ def inference(input_tensor, train, regularizer):
                   tf.nn.conv2d(conv3_relu2, conv3_weights2, strides=[1,1,1,1], padding='SAME'),
                   conv3_biases2
             )
+            if train != None:
+                  conv3 = tf.nn.dropout(conv3, 0.5)
     
       with tf.variable_scope('layer4-conv4'):
             conv4_concat = tf.concat([conv1, conv2, conv3], 3)
@@ -116,11 +120,13 @@ def inference(input_tensor, train, regularizer):
                   tf.nn.conv2d(conv4_relu2, conv4_weights2, strides=[1,1,1,1], padding='SAME'),
                   conv4_biases2
             )
+            if train != None:
+                  conv4 = tf.nn.dropout(conv4, 0.5)
 
       with tf.variable_scope('layer4-avg_pool'):
             concat = tf.concat([conv1, conv2, conv3, conv4], 3)
             
-            pool2 = tf.nn.avg_pool(concat, ksize=[1,4,4,1], strides=[1,4,4,1], padding='VALID')
+            pool2 = tf.nn.avg_pool(concat, ksize=[1,4,4,1], strides=[1,4,4,1], padding='SAME')
 
       pool_shape = pool2.get_shape().as_list()
       nodes = pool_shape[1] * pool_shape[2] * pool_shape[3]
