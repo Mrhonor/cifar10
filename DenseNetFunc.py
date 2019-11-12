@@ -74,7 +74,7 @@ class cifar10:
         self.data_batch5 = self.data_batch5.reshape((10000,3,32,32)) 
         self.labels_batch5 = batch5.get(b'labels')
 
-        test_batch = unpickle("../cifar-10-batches-py/data_batch_5")
+        test_batch = unpickle("../cifar-10-batches-py/test_batch")
         self.test_data = test_batch[b'data']
         self.test_data = self.test_data.reshape((10000,3,32,32)) 
         self.labels_test = test_batch.get(b'labels')
