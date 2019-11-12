@@ -43,11 +43,14 @@ def inference(input_tensor, train, regularizer):
                   tf.nn.conv2d(input_tensor, conv1_weights, strides = [1,1,1,1], padding='SAME'), 
                   conv1_biases
             )
-            # conv1 = tf.nn.max_pool(conv1, ksize=[1,3,3,1], strides=[1,2,2,1], padding='SAME')
+            # conv1 = tf.nn.max_pool(cSonv1, ksize=[1,3,3,1], strides=[1,2,2,1], padding='SAME')
 
       # bn - relu - 1x1 conv - bn - relu - 3x3 conv
       with tf.variable_scope('layer2-conv2'):
-            conv2_bn1 = batch_norm(conv1)
+            pop_mean1 = tf.get_variable("pop_mean1", [num], trainable=False, initializer=tf.constant_initializer(0.0))
+            pop_var1 = tf.get_variable("pop_var1", [num], trainable=False, initializer=tf.constant_initializer(1.0))
+
+            conv2_bn1 = batch_norm(conv1, CONV1_DEEP, train, pop_mean1, pop_var1)
             conv2_relu1 = tf.nn.relu(conv2_bn1)
 
             conv2_weights1 = tf.get_variable("weights1", [1, 1, CONV1_DEEP, CONV2_DEEP_BOTTLENECK], 
@@ -58,7 +61,10 @@ def inference(input_tensor, train, regularizer):
                   conv2_biases1
             )
 
-            conv2_bn2 = batch_norm(conv2_bottleneck)
+            pop_mean2 = tf.get_variable("pop_mean2", [num], trainable=False, initializer=tf.constant_initializer(0.0))
+            pop_var2 = tf.get_variable("pop_var2", [num], trainable=False, initializer=tf.constant_initializer(1.0))
+
+            conv2_bn2 = batch_norm(conv2_bottleneck, CONV2_DEEP_BOTTLENECK, train, pop_mean2, pop_var2)
             conv2_relu2 = tf.nn.relu(conv2_bn2)
 
             conv2_weights2 = tf.get_variable("weights2", [CONV2_SIZE, CONV2_SIZE, CONV2_DEEP_BOTTLENECK, CONV2_DEEP], 
@@ -68,12 +74,15 @@ def inference(input_tensor, train, regularizer):
                   tf.nn.conv2d(conv2_relu2, conv2_weights2, strides=[1,1,1,1], padding='SAME'),
                   conv2_biases2
             )
-            if train != None:
+            if train != False:
                   conv2 = tf.nn.dropout(conv2, 0.5)
 
       with tf.variable_scope('layer3-conv3'):
             conv3_concat = tf.concat([conv1, conv2], 3)
-            conv3_bn1 = batch_norm(conv3_concat)
+
+            pop_mean1 = tf.get_variable("pop_mean1", [num], trainable=False, initializer=tf.constant_initializer(0.0))
+            pop_var1 = tf.get_variable("pop_var1", [num], trainable=False, initializer=tf.constant_initializer(1.0))
+            conv3_bn1 = batch_norm(conv3_concat, CONV1_DEEP+CONV2_DEEP, train, pop_mean1, pop_var1)
             conv3_relu1 = tf.nn.relu(conv3_bn1)
 
             conv3_weights1 = tf.get_variable("weights1", [1, 1, CONV1_DEEP+CONV2_DEEP, CONV3_DEEP_BOTTLENECK], 
@@ -84,7 +93,10 @@ def inference(input_tensor, train, regularizer):
                   conv3_biases1
             )
 
-            conv3_bn2 = batch_norm(conv3_bottleneck)
+            pop_mean2 = tf.get_variable("pop_mean2", [num], trainable=False, initializer=tf.constant_initializer(0.0))
+            pop_var2 = tf.get_variable("pop_var2", [num], trainable=False, initializer=tf.constant_initializer(1.0))
+
+            conv3_bn2 = batch_norm(conv3_bottleneck, CONV3_DEEP_BOTTLENECK, train, pop_mean2, pop_var2)
             conv3_relu2 = tf.nn.relu(conv3_bn2)
 
             conv3_weights2 = tf.get_variable("weights2", [CONV3_SIZE, CONV3_SIZE, CONV3_DEEP_BOTTLENECK, CONV3_DEEP], 
@@ -94,12 +106,15 @@ def inference(input_tensor, train, regularizer):
                   tf.nn.conv2d(conv3_relu2, conv3_weights2, strides=[1,1,1,1], padding='SAME'),
                   conv3_biases2
             )
-            if train != None:
+            if train != False:
                   conv3 = tf.nn.dropout(conv3, 0.5)
     
       with tf.variable_scope('layer4-conv4'):
             conv4_concat = tf.concat([conv1, conv2, conv3], 3)
-            conv4_bn1 = batch_norm(conv4_concat)
+
+            pop_mean1 = tf.get_variable("pop_mean1", [num], trainable=False, initializer=tf.constant_initializer(0.0))
+            pop_var1 = tf.get_variable("pop_var1", [num], trainable=False, initializer=tf.constant_initializer(1.0))
+            conv4_bn1 = batch_norm(conv4_concat, CONV1_DEEP+CONV2_DEEP+CONV3_DEEP, train, pop_mean1, pop_var1)
             conv4_relu1 = tf.nn.relu(conv4_bn1)
 
             conv4_weights1 = tf.get_variable("weights1", [1, 1, CONV1_DEEP+CONV2_DEEP+CONV3_DEEP, CONV4_DEEP_BOTTLENECK], 
@@ -110,7 +125,9 @@ def inference(input_tensor, train, regularizer):
                   conv4_biases1
             )
 
-            conv4_bn2 = batch_norm(conv4_bottleneck)
+            pop_mean2 = tf.get_variable("pop_mean2", [num], trainable=False, initializer=tf.constant_initializer(0.0))
+            pop_var2 = tf.get_variable("pop_var2", [num], trainable=False, initializer=tf.constant_initializer(1.0))
+            conv4_bn2 = batch_norm(conv4_bottleneck, CONV4_DEEP_BOTTLENECK, train, pop_mean2. pop_var2)
             conv4_relu2 = tf.nn.relu(conv4_bn2)
 
             conv4_weights2 = tf.get_variable("weights2", [CONV4_SIZE, CONV4_SIZE, CONV4_DEEP_BOTTLENECK, CONV4_DEEP], 
@@ -120,7 +137,7 @@ def inference(input_tensor, train, regularizer):
                   tf.nn.conv2d(conv4_relu2, conv4_weights2, strides=[1,1,1,1], padding='SAME'),
                   conv4_biases2
             )
-            if train != None:
+            if train != False:
                   conv4 = tf.nn.dropout(conv4, 0.5)
 
       with tf.variable_scope('layer4-avg_pool'):
@@ -143,7 +160,7 @@ def inference(input_tensor, train, regularizer):
 
             softmax = tf.nn.bias_add(tf.matmul(reshaped, softmax_weights), softmax_biases)
 
-            softmax = batch_norm(softmax)
+            # softmax = batch_norm(softmax)
 
             output = tf.nn.softmax(softmax)
             

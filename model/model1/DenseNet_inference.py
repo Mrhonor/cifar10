@@ -139,6 +139,6 @@ def inference(input_tensor, train, regularizer):
 
             softmax = batch_norm(softmax)
 
-            #output = tf.nn.softmax(softmax)
+            output = tf.nn.softmax(softmax)
             
-      return softmax
+      return output

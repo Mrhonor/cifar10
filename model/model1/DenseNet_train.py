@@ -47,7 +47,7 @@ def train(dataset):
             xs = xs.transpose(0,2,3,1)
             acc, step, loss_value = sess.run([accuracy, train_step, loss], feed_dict={x:xs, y_labels:ys})
 
-            if i % 10 == 0:
+            if i % 100 == 0:
                 print("%d step, loss : %g, accuracy : %f"%(i, loss_value, acc))
                 # print(ys)
                 # print(sess.run(y, feed_dict={x:xs}))

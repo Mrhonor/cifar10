@@ -19,7 +19,7 @@ def evaluate(dataset):
         y_labels = tf.placeholder(tf.float32, [None, DenseNet_inference.NUM_LABELS], name='y-input')
 
 
-        y = DenseNet_inference.inference(x, None, None)
+        y = DenseNet_inference.inference(x, False, None)
 
         correct_prediction = tf.equal(tf.argmax(y, 1), tf.argmax(y_labels, 1))
         accuracy = tf.reduce_mean(tf.cast(correct_prediction, tf.float32))
