@@ -7,7 +7,12 @@ def unpickle(file):
         dict = pickle.load(fo, encoding='bytes')
     return dict
 
-DECAY = 0.9
+# print(data_batch1.shape)
+# print(labels_batch1[0])
+# plt.imshow(data_batch1[0].transpose(1,2,0))
+# plt.axis("off")
+# plt.show()
+DECAY = 0.99
 
 def batch_norm(input, train, NUM, type):
     if type==1:
@@ -17,16 +22,16 @@ def batch_norm(input, train, NUM, type):
         pop_mean = tf.get_variable("pop_mean2", [NUM], trainable=False, initializer=tf.constant_initializer(0.0))
         pop_var = tf.get_variable("pop_var2", [NUM], trainable=False, initializer=tf.constant_initializer(1.0))
 
-    if train==True:
-        axis = list(range(len(input.get_shape())-1))
-        mean, var = tf.nn.moments(input, axis)
+    # if train==True:
+    axis = list(range(len(input.get_shape())-1))
+    mean, var = tf.nn.moments(input, axis)
 
-        mean = tf.assign(pop_mean, pop_mean*DECAY + mean*(1 - DECAY))
-        var = tf.assign(pop_var, pop_var*DECAY + var*(1 - DECAY))
-        with tf.control_dependencies([mean, var]):
-            bn = tf.nn.batch_normalization(input, mean, var, 0, 1, 1e-3)
-    else:
-        bn = tf.nn.batch_normalization(input, pop_mean, pop_var, 0, 1, 1e-3)
+    train_mean = tf.assign(pop_mean, pop_mean*DECAY + mean*(1 - DECAY))
+    train_var = tf.assign(pop_var, pop_var*DECAY + var*(1 - DECAY))
+    with tf.control_dependencies([train_mean, train_var]):
+        bn = tf.nn.batch_normalization(input, mean, var, 0, 1, 1e-3)
+    # else:
+    #     bn = tf.nn.batch_normalization(input, pop_mean, pop_var, 0, 1, 1e-3)
     return bn
 
     
@@ -51,27 +56,27 @@ class cifar10:
     def __init__(self):
         batch1 = unpickle("../cifar-10-batches-py/data_batch_1")
         self.data_batch1 = batch1[b'data'] 
-        self.data_batch1 = self.data_batch1.reshape((10000,3,32,32)) 
+        self.data_batch1 = self.data_batch1.reshape((10000,3,32,32))
         self.labels_batch1 = batch1.get(b'labels')
 
         batch2 = unpickle("../cifar-10-batches-py/data_batch_2")
         self.data_batch2 = batch2[b'data'] 
-        self.data_batch2 = self.data_batch2.reshape((10000,3,32,32)) 
+        self.data_batch2 = self.data_batch2.reshape((10000,3,32,32))
         self.labels_batch2 = batch2.get(b'labels')
 
         batch3 = unpickle("../cifar-10-batches-py/data_batch_3")
         self.data_batch3 = batch3[b'data'] 
-        self.data_batch3 = self.data_batch3.reshape((10000,3,32,32)) 
+        self.data_batch3 = self.data_batch3.reshape((10000,3,32,32))
         self.labels_batch3 = batch3.get(b'labels')
 
         batch4 = unpickle("../cifar-10-batches-py/data_batch_4")
         self.data_batch4 = batch4[b'data'] 
-        self.data_batch4 = self.data_batch4.reshape((10000,3,32,32)) 
+        self.data_batch4 = self.data_batch4.reshape((10000,3,32,32))
         self.labels_batch4 = batch4.get(b'labels')
 
         batch5 = unpickle("../cifar-10-batches-py/data_batch_5")
         self.data_batch5 = batch5[b'data'] 
-        self.data_batch5 = self.data_batch5.reshape((10000,3,32,32)) 
+        self.data_batch5 = self.data_batch5.reshape((10000,3,32,32))
         self.labels_batch5 = batch5.get(b'labels')
 
         test_batch = unpickle("../cifar-10-batches-py/test_batch")

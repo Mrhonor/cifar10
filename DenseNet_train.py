@@ -37,7 +37,7 @@ def train(dataset):
     accuracy = tf.reduce_mean(tf.cast(correct_prediction, tf.float32))
 
 
-    saver = tf.train.Saver()
+    saver = tf.train.Saver(var_list=tf.global_variables())
 
     with tf.Session() as sess:
         tf.initialize_all_variables().run()

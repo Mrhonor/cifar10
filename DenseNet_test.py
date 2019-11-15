@@ -6,8 +6,22 @@ import DenseNetFunc
 import msvcrt
 import numpy as np
 
+'''
+label:
+      0 airplane
+      1 automobile
+      2 bird
+      3 cat
+      4 deer
+      5 dog
+      6 frog
+      7 horse
+      8 ship
+      9 truck
+'''
+
 BATCH_SIZE = 500
-BEST_MODE_SAVE_PATH = "model/model13/model29900.ckpt"
+BEST_MODE_SAVE_PATH = "model/model16/model/model29900.ckpt"
 
 def evaluate(dataset):
     with tf.Graph().as_default() as g:

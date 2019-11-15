@@ -64,6 +64,11 @@ class cifar10:
         self.data_batch5 = self.data_batch5.reshape((10000,3,32,32))
         self.labels_batch5 = batch5.get(b'labels')
 
+        test_batch = unpickle("../../../cifar-10-batches-py/test_batch")
+        self.test_data = test_batch[b'data']
+        self.test_data = self.test_data.reshape((10000,3,32,32)) 
+        self.labels_test = test_batch.get(b'labels')
+
     def get_next_batch(self, BATCH_SIZE, i):
         num = i*BATCH_SIZE % 40000
         if num <= 10000-BATCH_SIZE:
@@ -92,4 +97,12 @@ class cifar10:
         
         x = self.data_batch5[num1:num2]
         y = onehot(self.labels_batch5[num1:num2], 10)
+        return x, y
+
+    def get_test_batch(self, num1, num2):
+        if num1 >= 10000 or num2 >= 10000 or num1 > num2:
+            return None
+        
+        x = self.test_data[num1:num2]
+        y = onehot(self.labels_test[num1:num2], 10)
         return x, y

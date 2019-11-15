@@ -4,8 +4,8 @@ import DenseNet_train
 import DenseNetFunc
 
 BATCH_SIZE = 50
-MODEL_SAVE_PATH = DenseNet_train.MODEL_SAVE_PATH + "model9/"
-GRAPH_SAVE_PATH = MODEL_SAVE_PATH + "graph/"
+MODEL_SAVE_PATH = "model/model16/model/"
+# GRAPH_SAVE_PATH ="graph/"
 
 def evaluate(dataset):
     with tf.Graph().as_default() as g:
@@ -24,21 +24,33 @@ def evaluate(dataset):
         correct_prediction = tf.equal(tf.argmax(y, 1), tf.argmax(y_labels, 1))
         accuracy = tf.reduce_mean(tf.cast(correct_prediction, tf.float32))
 
-        saver = tf.train.Saver()
+        saver = tf.train.Saver(var_list=tf.global_variables())
 
         with tf.Session() as sess:
             saver.restore(sess, MODEL_SAVE_PATH + "model29900.ckpt")
-            summary_write = tf.summary.FileWriter(GRAPH_SAVE_PATH, tf.get_default_graph())
+            # summary_write = tf.summary.FileWriter(GRAPH_SAVE_PATH, tf.get_default_graph())
             i = 0
-            acc = 0
+            acc1 = 0
+            acc2 = 0
+            acc3 = 0
             while i*BATCH_SIZE < 10000 - BATCH_SIZE:
-                xs, ys = list(dataset.get_val_batch(i*BATCH_SIZE, i*BATCH_SIZE + BATCH_SIZE))
-                xs = xs.transpose(0,2,3,1)
-                accuracy_score = sess.run(accuracy, feed_dict={x:xs, y_labels:ys})
+                x1, y1 = list(dataset.get_test_batch(i*BATCH_SIZE, i*BATCH_SIZE + BATCH_SIZE)) #测试集准确率
+                x2, y2 = list(dataset.get_val_batch(i*BATCH_SIZE, i*BATCH_SIZE + BATCH_SIZE)) #验证集准确率
+                x3, y3 = list(dataset.get_next_batch(BATCH_SIZE, i)) #训练集准确率
+                x1 = x1.transpose(0,2,3,1)
+                x2 = x2.transpose(0,2,3,1)
+                x3 = x3.transpose(0,2,3,1)
+                accuracy_score1 = sess.run(accuracy, feed_dict={x:x1, y_labels:y1})
+                accuracy_score2 = sess.run(accuracy, feed_dict={x:x2, y_labels:y2})
+                accuracy_score3 = sess.run(accuracy, feed_dict={x:x3, y_labels:y3})
                 i = i + 1
-                acc = acc + accuracy_score
-            acc = acc / i
-            print("acc: %f"%(acc))
+                acc1 = acc1 + accuracy_score1
+                acc2 = acc2 + accuracy_score2
+                acc3 = acc3 + accuracy_score3
+            acc1 = acc1 / i
+            acc2 = acc2 / i
+            acc3 = acc3 / i
+            print("测试集准确率: %f\n验证集准确率：%f\n训练集准确率: %f\n"%(acc1, acc2, acc3))
 
 
 def main(argv=None):
